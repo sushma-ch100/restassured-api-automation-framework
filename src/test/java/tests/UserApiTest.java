@@ -1,33 +1,20 @@
-package com.api;
+package tests;
 
-import io.restassured.RestAssured;
-import io.restassured.specification.RequestSpecification;
-import org.testng.annotations.BeforeClass;
+import base.BaseTest;
 import org.testng.annotations.Test;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-public class UserApiTest {
-
-    RequestSpecification request;
-
-    @BeforeClass
-    public void setup() {
-        RestAssured.baseURI = "https://reqres.in";
-
-        request = given()
-                .header("x-api-key", "free_user_3DDk3eUAl8mkxIsS9UdI1MkeY6g")
-                .header("User-Agent", "RestAssured-Test-Automation")
-                .contentType("application/json");
-    }
+public class UserApiTest extends BaseTest {
 
     @Test
     public void getUsersTest() {
         request
+            .log().all()
         .when()
             .get("/api/users?page=2")
         .then()
+            .log().all()
             .statusCode(200)
             .body("page", equalTo(2))
             .body("data.size()", greaterThan(0));
@@ -36,12 +23,15 @@ public class UserApiTest {
     @Test
     public void getSingleUserTest() {
         request
+            .log().all()
         .when()
             .get("/api/users/2")
         .then()
+            .log().all()
             .statusCode(200)
             .body("data.id", equalTo(2))
-            .body("data.email", containsString("@reqres.in"));
+            .body("data.email", containsString("@reqres.in"))
+            .body("data.first_name", notNullValue());
     }
 
     @Test
@@ -49,10 +39,12 @@ public class UserApiTest {
         String requestBody = "{ \"name\": \"Sushma\", \"job\": \"QA Engineer\" }";
 
         request
+            .log().all()
             .body(requestBody)
         .when()
             .post("/api/users")
         .then()
+            .log().all()
             .statusCode(201)
             .body("name", equalTo("Sushma"))
             .body("job", equalTo("QA Engineer"))
@@ -64,10 +56,12 @@ public class UserApiTest {
         String requestBody = "{ \"name\": \"Sushma\", \"job\": \"Senior QA\" }";
 
         request
+            .log().all()
             .body(requestBody)
         .when()
             .put("/api/users/2")
         .then()
+            .log().all()
             .statusCode(200)
             .body("job", equalTo("Senior QA"));
     }
@@ -75,18 +69,22 @@ public class UserApiTest {
     @Test
     public void deleteUserTest() {
         request
+            .log().all()
         .when()
             .delete("/api/users/2")
         .then()
+            .log().all()
             .statusCode(204);
     }
 
     @Test
     public void invalidEndpointTest() {
         request
+            .log().all()
         .when()
             .get("/api/users/999")
         .then()
+            .log().all()
             .statusCode(404);
     }
 }
